@@ -1,4 +1,4 @@
-
+'use strict';
 
 /**
  * is-Objekt, welches das vorliegen diverser Eigenschaften von Objekten oder des Browsers überprüfen kann
@@ -64,13 +64,13 @@ let is = {
    * But the property itself is present within object, so checking for property presence returns true in all IE versions, but in IE11 second check returns false.
    * Finally hasOwnProperty is called via Object because in IE8 (and I believe earlier) window is not an instanceof Object and does not have hasOwnProperty method.
    **/
-  IE11: (Object.prototype.hasOwnProperty.call(window, "ActiveXObject") && !window.ActiveXObject),
+  IE11: typeof window !== 'undefined' && (Object.prototype.hasOwnProperty.call(window, "ActiveXObject") && !window.ActiveXObject),
 
   /**
    * Detects if ActiveX is supported
    * (hier gehe ich direkt über window, passt genauso)
    **/
-  activeXSupported: window.hasOwnProperty('ActiveXObject'),
+  activeXSupported: typeof window !== 'undefined' && window.hasOwnProperty('ActiveXObject'),
 
   /**
    * Detects if page runs as HTA
@@ -78,14 +78,16 @@ let is = {
   hta: function() { var isHTA=false; try{isHTA=(window.external==null)}catch(e){} return isHTA; },
 
   /**
-   * Detects if page runs in a GIT Repository (Development Environment)
+   * Detects if page runs in node
+   * Wenn window nicht bekannt ist, dafür aber module, können wir recht sicher sein, dass wir unter Node laufen
    **/
-  runningInGitRepository: location.href.toUpperCase().indexOf('GITREPOSITORY') !== -1 || location.href.toUpperCase().indexOf('WEBSTORMPROJECTS') !== -1, // Ohne contains(), da dieser Library-Code sehr früh ausgeführt wird
+  runningInNode: typeof window === 'undefined' && typeof module !== 'undefined',
 
   /**
-   * Detects if page runs on a fileserver
+   * Detects if page runs in a GIT Repository (Development Environment)
    **/
-  runningOnFileServer: document.location.href.indexOf('file:///C:/') === -1
+  // code is broken in nodeJS TODO fix
+  // runningInGitRepository: location.href.toUpperCase().indexOf('GITREPOSITORY') !== -1 || location.href.toUpperCase().indexOf('WEBSTORMPROJECTS') !== -1, // Ohne contains(), da dieser Library-Code sehr früh ausgeführt wird
 };
 
 
@@ -97,7 +99,7 @@ let is = {
  *
  * Lives in global scope.
  **/
-var obj = {
+let obj = {
   /**
    * Classical inheritance with Object.create(): {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create}
    */
@@ -215,7 +217,24 @@ var obj = {
       o[newName] = o[oldName];
     }
 
-    let res = delete o[oldName];
-    return res;
+    return delete o[oldName]; // Will try to delete the prop and afterwards return the result of deletion
   }
 };
+
+
+/**
+ * nodeJS doesn't seem to know contains()...
+ **/
+if (!('contains' in String.prototype)) {
+  String.prototype.contains = function(str, startIndex) {
+    return -1 !== String.prototype.indexOf.call(this, str, startIndex);
+  };
+}
+
+
+
+if (is.runningInNode) {
+  // Export the library-object to nodeJS (via module)
+  module.exports = is;
+  // module.exports.obj = obj; // Well TODO
+}
