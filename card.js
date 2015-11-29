@@ -1,5 +1,5 @@
 'use strict';
-
+let is = require('./is.js');
 
 /**
  * 1) Contains all of the code in a scope (lives good with other libraries)
@@ -79,9 +79,12 @@
 
 
 
-  // Export object to a browser (via window)
-  window.Card = Card;
+  if (is.runningInNode) {
+    // Export object to nodeJS (via module)
+    module.exports = Card;
+  } else {
+    // Export object to a browser (via window)
+    window.Card = Card;
+  }
 
-  // Export object to nodeJS (via module)
-  module.exports = Card;
 })();
