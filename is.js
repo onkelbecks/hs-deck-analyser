@@ -87,3 +87,135 @@ let is = {
    **/
   runningOnFileServer: document.location.href.indexOf('file:///C:/') === -1
 };
+
+
+
+
+
+/**
+ * obj-Objekt, welches diverse Methoden bereithält, um mit Objekten zu arbeiten
+ *
+ * Lives in global scope.
+ **/
+var obj = {
+  /**
+   * Classical inheritance with Object.create(): {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create}
+   */
+
+
+
+  /**
+   * Ermittelt den "Subtype" eines Objekts.
+   *
+   * @param {object} o - the object to check
+   * @return {string}
+   *
+   * @example {} => [object Object]
+   * @example new Date => [object Date]
+   * @example new RegExp => [object RegExp]
+   * @example '' => [object String]
+   * @example 2 => [object Number]
+   * @example true => [object Boolean]
+   * @example undefined => [object Undefined]
+   * @example null => [object Null]
+   * @example function(){} => [object Function]
+   **/
+  subType: function(o) {
+    return Object.prototype.toString.apply(o);
+  },
+
+
+  /**
+   * Duplicates an object
+   *
+   * Object must be JSON-safe
+   * @param {object} o - the object to duplicate
+   **/
+  duplicate: function (o) {
+    return JSON.parse(JSON.stringify(o));
+  },
+
+
+  /**
+   * Copys an object / Erzeugt eine flache Kopie. Unsupported in IE 11...
+   *
+   * @param {object} source - the object to copy
+   **/
+  shallowCopy: function (source) {
+    let target = {};
+    return Object.assign(target,source);
+  },
+
+
+  /**
+   * Prevent Extensions on an object => Prevent an object from having new properties added to it.
+   *
+   * @param {object} o - the object where to prevent extensions
+   **/
+  preventExtensionsOnIt: function (o) {
+    return Object.preventExtensions(o);
+  },
+
+
+  /**
+   * Seals an object => It takes an existing object and essentially calls Object.preventExtensions() on it, but also marks all its existing properties as configurable:false.
+   *
+   * @param {object} o - the object to seal
+   **/
+  sealIt: function (o) {
+    return Object.seal(o);
+  },
+
+
+  /**
+   * Freezes an object => It takes an existing object and essentially calls Object.seal() on it, but it also marks all "data accessor" properties as writable:false, so that their values cannot be changed.
+   *
+   * @param {object} o - the object to freeze
+   **/
+  freezeIt: function (o) {
+    return Object.freeze(o);
+  },
+
+
+  /**
+   * Liefert, wenn man nur das Objekt hat, den protoype des zugehörigen Object Constructors
+   * Wenn man den Object constructor schon hat, braucht man diese Funktion nicht, weil
+   * let o = new OC(); => OC.prototype === Object.getPrototypeOf(o)
+   *
+   * @param {object} o - The object to get the protoype from
+   **/
+  getPrototype: function (o) {
+    return Object.getPrototypeOf(o);
+  },
+
+
+  /**
+   * Renames a property
+   *
+   * @param {object} o - The object, which has the property
+   * @param {string} oldName - Name der alten Property, welche entfernt wird
+   * @param {string} newName - Name der neuen Property, welche angelegt wird, aber den Wert von oldName übernimmt
+   * @return {boolean} true on success, false on fail
+   **/
+  renameProperty: function (o, oldName, newName) { // Anstatt eines prototypischen Eingriffs über Object.prototype.renameProperty
+    if (typeof o !== 'object') {
+        console.warn('obj.renameProperty - first arg is supposed to be a object');
+      return false;
+    }
+    if (typeof oldName !== 'string') {
+      console.warn('obj.renameProperty - second arg is supposed to be a string');
+      return false;
+    }
+    if (typeof newName !== 'string') {
+      console.warn('obj.renameProperty - third arg is supposed to be a string');
+      return false;
+    }
+
+    if (o.hasOwnProperty(oldName)) { // hasOwnProperty without reason. May be opened for all propertys later.
+      o[newName] = o[oldName];
+    }
+
+    let res = delete o[oldName];
+    return res;
+  }
+};
