@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
-	var Card = require('./card.js');
-	var twoCostCard = new Card(2,"Minion");
+	let Card = require('./card.js');
+	let twoCostCard = new Card({cost:2, type:"Minion"});
 
 	console.log(twoCostCard.cost);
 	console.log(twoCostCard.type);
